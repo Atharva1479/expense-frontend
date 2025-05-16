@@ -44,11 +44,19 @@ with tab1:
 
     # Show existing entries with Edit buttons
     if edit_data:
-        st.subheader(f"📌 Existing Expenses on {selected_date.strftime('%d %B %Y')}")
+        col1, col2, col3 = st.columns([0.65, 0.18, 0.17], gap="small")
         for i, exp in enumerate(edit_data, 1):
             col1, col2, col3 = st.columns([0.6, 0.2, 0.2])
         with col1:
-            st.markdown(f"**{i}. {exp['category']}** | ₹{exp['amount']} | {exp['payment_method']}  \n*{exp['description']}*")
+            st.markdown(
+            f"""
+            <div style='line-height:1.4; font-size:15px; margin-bottom:-10px;'>
+                <strong>{i}. {exp['category']}</strong> | ₹{exp['amount']} | {exp['payment_method']}<br>
+                <span style='color: grey; font-size: 13px;'><em>{exp['description']}</em></span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         with col2:
             if st.button("✏️ Edit", key=f"edit_{exp['id']}"):
                 st.session_state.editing = True
