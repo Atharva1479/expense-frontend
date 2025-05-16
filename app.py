@@ -275,9 +275,36 @@ with tab3:
     else:
         st.error("🚫 Failed to retrieve data for analytics.")
 
+# Sticky footer CSS
 st.markdown("""
-    <div style="text-align: center; color: grey; font-size: 0.9em;">
+    <style>
+        .reportview-container {
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        footer {
+            text-align: center;
+            color: grey;
+            padding: 10px;
+            font-size: 0.9em;
+            margin-top: auto;
+        }
+
+        hr {
+            border: none;
+            height: 1px;
+            background-color: #ccc;
+            margin: 20px 0 10px;
+        }
+    </style>
+
+    <hr />
+    <footer>
         Made with ❤️ by <strong>AJ</strong>
-    </div>
+    </footer>
 """, unsafe_allow_html=True)
+
 
