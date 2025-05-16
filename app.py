@@ -16,10 +16,6 @@ st.markdown("---")  # Optional divider
 # FastAPI base URL
 API_URL = "https://expense-backend-m2y7.onrender.com/expenses"
 
-st.set_page_config(page_title="Expense Tracker", page_icon="💰", layout="wide")
-
-
-
 
 # Predefined options
 CATEGORIES = ["Select a category", "Food", "Transport", "Entertainment", "Shopping", "Utilities", "Healthcare",
