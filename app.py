@@ -44,9 +44,9 @@ with tab1:
 
     # Show existing entries with Edit buttons
     if edit_data:
-        col1, col2, col3 = st.columns([0.65, 0.18, 0.17], gap="small")
+        st.subheader(f"📌 Existing Expenses on {selected_date.strftime('%d %B %Y')}")
         for i, exp in enumerate(edit_data, 1):
-            col1, col2, col3 = st.columns([0.6, 0.2, 0.2])
+            col1, col2, col3 = st.columns([0.65, 0.18, 0.17], gap="small") 
         with col1:
             st.markdown(
             f"""
