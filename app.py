@@ -199,8 +199,16 @@ with tab3:
 
             for bar in bars:
                 yval = bar.get_height()
-                ax.text(bar.get_x() + bar.get_width() / 2, yval + 10, f"₹{yval:.0f}", ha='center', va='bottom',
-                        fontsize=9)
+                ax.text(
+                    bar.get_x() + bar.get_width() / 2,
+                    yval + (0.02 * max(values)),  # dynamic spacing based on chart height
+                    f"₹{yval:.0f}",
+                    ha='center',
+                    va='bottom',
+                    fontsize=9,
+                    fontweight='bold'
+            )
+
 
             ax.set_title("Monthly Expenses", fontsize=14)
             ax.set_ylabel("Amount (₹)")
