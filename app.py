@@ -288,23 +288,16 @@ st.markdown("""
         footer {
             text-align: center;
             color: grey;
-            padding: 10px;
+            padding: 20px 10px 10px;
             font-size: 0.9em;
             margin-top: auto;
         }
-
-        hr {
-            border: none;
-            height: 1px;
-            background-color: #ccc;
-            margin: 20px 0 10px;
-        }
     </style>
 
-    <hr />
     <footer>
         Made with ❤️ by <strong>AJ</strong>
     </footer>
 """, unsafe_allow_html=True)
+
 
 
