@@ -77,7 +77,7 @@ with tab1:
                 "payment_method": payment_method,
                 "description": description
             }
-            response = requests.put(API_URL + str(edit_id), json=updated_data)
+            response = requests.put(f"{API_URL}/{edit_id}", json=updated_data)
             if response.status_code == 200:
                 st.success("✅ Expense updated successfully!")
                 # Reset session state
