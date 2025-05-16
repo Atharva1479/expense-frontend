@@ -49,13 +49,12 @@ with tab1:
             col1, col2, col3 = st.columns([0.6, 0.2, 0.2])
         with col1:
             st.markdown(
-                f"<div style='line-height: 1.6; font-size: 15px;'>"
-                f"<strong>{i}. {exp['category']}</strong> | ₹{exp['amount']} | {exp['payment_method']}<br>"
-                f"<span style='color: grey; font-size: 13px;'><em>{exp['description']}</em></span>"
-                f"</div>",
-                unsafe_allow_html=True
-            )
-
+            f"<div style='line-height: 1.3; font-size: 15px; margin-bottom: 2px;'>"
+            f"<strong>{i}. {exp['category']}</strong> | ₹{exp['amount']} | {exp['payment_method']}<br>"
+            f"<span style='color: grey; font-size: 13px;'><em>{exp['description']}</em></span>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
         with col2:
             if st.button("✏️ Edit", key=f"edit_{exp['id']}"):
                 st.session_state.editing = True
