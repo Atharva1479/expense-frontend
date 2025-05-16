@@ -5,27 +5,21 @@ import matplotlib.pyplot as plt
 from datetime import date
 import numpy as np
 
+
 # ✅ This MUST be the first Streamlit command
 st.set_page_config(page_title="Expense Tracker", page_icon="💰", layout="wide")
 
 # ✅ App Title after set_page_config
 st.markdown("<h1 style='text-align: center; color: #4CAF50;'>💰 Track My Cash</h1>", unsafe_allow_html=True)
 
+# FastAPI base URL
 API_URL = "https://expense-backend-m2y7.onrender.com/expenses"
+
 
 # Predefined options
 CATEGORIES = ["Select a category", "Food", "Transport", "Entertainment", "Shopping", "Utilities", "Healthcare",
               "Education", "Others"]
 PAYMENT_METHODS = ["Select a payment method", "Cash", "Credit Card", "Debit Card", "UPI", "Net Banking"]
-
-# Responsive helper to stack or side-by-side
-def responsive_columns(*args, mobile_threshold=600):
-    width = st.experimental_get_query_params().get("width")
-    # Simplified logic: if window width param < threshold, stack vertically
-    if width and int(width[0]) < mobile_threshold:
-        return [st.container() for _ in args]
-    else:
-        return st.columns(len(args))
 
 tab1, tab2, tab3 = st.tabs([
     "📝 Add Expense",
@@ -33,12 +27,13 @@ tab1, tab2, tab3 = st.tabs([
     "📈 Analytics"
 ])
 
-# --- TAB 1: Add or Edit Expense ---
+active_tab = st.session_state.get("active_tab", "Add Expense")
+
 with tab1:
     st.title("📝 Add or Edit Expense")
+
     selected_date = st.date_input("📅 Select Date to Add or Edit", max_value=date.today())
 
-    # Fetch expenses for selected date
     response = requests.get(API_URL)
     edit_data = []
     if response.status_code == 200:
@@ -47,45 +42,44 @@ with tab1:
     else:
         st.error("🚫 Failed to retrieve expenses for selected date.")
 
+    # Show existing entries with Edit buttons
     if edit_data:
         st.subheader(f"📌 Existing Expenses on {selected_date.strftime('%d %B %Y')}")
         for i, exp in enumerate(edit_data, 1):
-            col1, col2 = st.columns([0.85, 0.15])
-            with col1:
-                st.markdown(f"**{i}. {exp['category']}** | ₹{exp['amount']} | {exp['payment_method']}  \n*{exp['description']}*")
-            with col2:
-                if st.button("✏️ Edit", key=f"edit_{exp['id']}"):
-                    st.session_state.editing = True
-                    st.session_state.edit_id = exp["id"]
-                    st.session_state.category = exp["category"]
-                    st.session_state.amount = exp["amount"]
-                    st.session_state.payment_method = exp["payment_method"]
-                    st.session_state.description = exp["description"]
-                    st.experimental_rerun()
-                if st.button("🗑️ Delete", key=f"del_{exp['id']}"):
-                    del_resp = requests.delete(f"{API_URL}/{exp['id']}")
-                    if del_resp.status_code == 200:
-                        st.success("✅ Expense deleted!")
-                        st.experimental_rerun()
-                    else:
-                        st.error("🚫 Failed to delete expense.")
+            col1, col2, col3 = st.columns([0.6, 0.2, 0.2])
+        with col1:
+            st.markdown(f"**{i}. {exp['category']}** | ₹{exp['amount']} | {exp['payment_method']}  \n*{exp['description']}*")
+        with col2:
+            if st.button("✏️ Edit", key=f"edit_{exp['id']}"):
+                st.session_state.editing = True
+                st.session_state.edit_id = exp["id"]
+                st.session_state.category = exp["category"]
+                st.session_state.amount = exp["amount"]
+                st.session_state.payment_method = exp["payment_method"]
+                st.session_state.description = exp["description"]
+                st.rerun()
+        with col3:
+            if st.button("🗑️ Delete", key=f"delete_{exp['id']}"):
+                delete_response = requests.delete(f"{API_URL}/{exp['id']}")
+                if delete_response.status_code == 200:
+                    st.success("🗑️ Expense deleted successfully!")
+                    st.rerun()
+                else:
+                    st.error("❌ Failed to delete expense.")
 
     else:
         st.info("No expenses recorded for this date yet.")
 
     st.subheader("➕ Add or Edit Expense Entry")
 
+    # Detect whether editing or adding
     editing = st.session_state.get("editing", False)
     edit_id = st.session_state.get("edit_id", None)
 
-    category = st.selectbox("Category", options=CATEGORIES,
-                            index=CATEGORIES.index(st.session_state.get("category", "Select a category")),
-                            key="category")
+    category = st.selectbox("Category", options=CATEGORIES, index=CATEGORIES.index(st.session_state.get("category", "Select a category")), key="category")
     default_amount = st.session_state.get("amount", 0.01)
     amount = st.number_input("Amount", min_value=0.01, format="%.2f", value=default_amount, key="amount")
-    payment_method = st.selectbox("Payment Method", options=PAYMENT_METHODS,
-                                  index=PAYMENT_METHODS.index(st.session_state.get("payment_method", "Select a payment method")),
-                                  key="payment_method")
+    payment_method = st.selectbox("Payment Method", options=PAYMENT_METHODS, index=PAYMENT_METHODS.index(st.session_state.get("payment_method", "Select a payment method")), key="payment_method")
     description = st.text_area("Description", value=st.session_state.get("description", ""), key="description")
 
     if editing:
@@ -100,11 +94,10 @@ with tab1:
             response = requests.put(f"{API_URL}/{edit_id}", json=updated_data)
             if response.status_code == 200:
                 st.success("✅ Expense updated successfully!")
-                # Clear edit session state
+                # Reset session state
                 for k in ["editing", "edit_id", "category", "amount", "payment_method", "description"]:
-                    if k in st.session_state:
-                        del st.session_state[k]
-                st.experimental_rerun()
+                    st.session_state.pop(k, None)
+                st.rerun()
             else:
                 st.error("🚫 Failed to update expense.")
     else:
@@ -122,11 +115,11 @@ with tab1:
                 response = requests.post(API_URL, json=expense_data)
                 if response.status_code == 200:
                     st.success("✅ Expense added successfully!")
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("🚫 Failed to add expense.")
 
-# --- TAB 2: View Expenses ---
+# ✅ Tab 2: View Expenses (NO ANALYTICS HERE)
 with tab2:
     st.title("📊 View All Expenses")
 
@@ -137,27 +130,29 @@ with tab2:
         if expenses:
             df = pd.DataFrame(expenses)
             df['date'] = pd.to_datetime(df['date'])
-            # Drop unneeded columns if present
-            for col in ['Unnamed: 0', 'id']:
-                if col in df.columns:
-                    df.drop(columns=[col], inplace=True)
 
+            # Drop unnecessary columns
+            df.drop(columns=[col for col in ['Unnamed: 0', 'id'] if col in df.columns], inplace=True)
+
+            # 📅 Add Date Filters
             st.subheader("📆 Filter by Date Range")
             min_date = df['date'].min().date()
             max_date = df['date'].max().date()
+
             start_date = st.date_input("Start Date", value=min_date, min_value=min_date, max_value=max_date)
             end_date = st.date_input("End Date", value=max_date, min_value=min_date, max_value=max_date)
 
             if start_date > end_date:
                 st.error("❌ Start date cannot be after end date.")
             else:
+                # Filter DataFrame
                 filtered_df = df[(df['date'].dt.date >= start_date) & (df['date'].dt.date <= end_date)]
 
                 if not filtered_df.empty:
                     st.subheader(f"🗂️ Expenses from {start_date} to {end_date}")
-                    # Show table in a scrollable container for mobile
                     st.dataframe(filtered_df.reset_index(drop=True), use_container_width=True)
 
+                    # Download button
                     @st.cache_data
                     def convert_df(df):
                         return df.to_csv(index=False).encode('utf-8')
@@ -176,7 +171,7 @@ with tab2:
     else:
         st.error("🚫 Failed to retrieve expenses.")
 
-# --- TAB 3: Analytics ---
+# ✅ Tab 3: Analytics (ALL ANALYTICS HERE)
 with tab3:
     st.title("📈 Expense Analytics")
 
@@ -188,12 +183,13 @@ with tab3:
             df = pd.DataFrame(expenses)
             df['date'] = pd.to_datetime(df['date'])
 
-            # Monthly Expense Bar Chart
+            # ✅ Monthly Expense Bar Chart
             st.subheader("📅 Monthly Expense Analysis")
             df['month'] = df['date'].dt.to_period('M')
             monthly_expenses = df.groupby(df['month'])['amount'].sum().sort_index()
             monthly_expenses.index = monthly_expenses.index.strftime('%B %Y')
 
+            # Plot bar chart
             fig, ax = plt.subplots(figsize=(10, 5))
             months = monthly_expenses.index.tolist()
             values = monthly_expenses.values
@@ -203,7 +199,16 @@ with tab3:
 
             for bar in bars:
                 yval = bar.get_height()
-                ax.text(bar.get_x() + bar.get_width() / 2, yval + 10, f"₹{yval:.0f}", ha='center', va='bottom', fontsize=9)
+                ax.text(
+                    bar.get_x() + bar.get_width() / 2,
+                    yval + (0.01 * max(values)),  # dynamic spacing based on chart height
+                    f"₹{yval:.0f}",
+                    ha='center',
+                    va='bottom',
+                    fontsize=9,
+                    fontweight='bold'
+            )
+
 
             ax.set_title("Monthly Expenses", fontsize=14)
             ax.set_ylabel("Amount (₹)")
@@ -212,8 +217,9 @@ with tab3:
             ax.set_xticklabels(months, rotation=45, ha='right')
             st.pyplot(fig)
 
-            # Pie Charts for Category & Payment Method for selected month
+            # ✅ Pie Chart Filtering by Month
             st.subheader("🧭 Detailed Category & Payment Method Analysis")
+
             df['month_str'] = df['date'].dt.strftime('%B %Y')
             unique_months = sorted(df['month_str'].unique(), key=lambda x: pd.to_datetime(x))
             current_month = pd.Timestamp.now().strftime('%B %Y')
@@ -227,32 +233,49 @@ with tab3:
                 st.warning(f"No data available for {selected_month}.")
             else:
                 total_amount = filtered_df['amount'].sum()
-                st.markdown(f"**Total Expense in {selected_month}: ₹{total_amount:.2f}**")
+                st.markdown(f"**💰 Total Expenses for {selected_month}: ₹{total_amount:.2f}**")
 
                 col1, col2 = st.columns(2)
+
+                # 🏷️ Category-wise Pie
                 with col1:
-                    st.markdown("**By Category**")
-                    cat_data = filtered_df.groupby('category')['amount'].sum()
+                    st.markdown("#### 🏷️ Category-wise")
+                    category_expenses = filtered_df.groupby('category')['amount'].sum().sort_values(ascending=False)
+                    explode_cat = [0.1 if i < 2 else 0 for i in range(len(category_expenses))]
                     fig1, ax1 = plt.subplots()
-                    ax1.pie(cat_data, labels=cat_data.index, autopct='%1.1f%%', startangle=140)
+                    ax1.pie(
+                        category_expenses,
+                        labels=category_expenses.index,
+                        autopct='%1.1f%%',
+                        startangle=90,
+                        explode=explode_cat
+                    )
                     ax1.axis('equal')
                     st.pyplot(fig1)
+
+                # 💳 Payment Method-wise Pie
                 with col2:
-                    st.markdown("**By Payment Method**")
-                    pay_data = filtered_df.groupby('payment_method')['amount'].sum()
+                    st.markdown("#### 💳 Payment Method-wise")
+                    payment_expenses = filtered_df.groupby('payment_method')['amount'].sum().sort_values(
+                        ascending=False)
+                    explode_pay = [0.1 if i < 2 else 0 for i in range(len(payment_expenses))]
                     fig2, ax2 = plt.subplots()
-                    ax2.pie(pay_data, labels=pay_data.index, autopct='%1.1f%%', startangle=140)
+                    ax2.pie(
+                        payment_expenses,
+                        labels=payment_expenses.index,
+                        autopct='%1.1f%%',
+                        startangle=90,
+                        explode=explode_pay
+                    )
                     ax2.axis('equal')
                     st.pyplot(fig2)
 
         else:
-            st.warning("No expense data found to analyze.")
+            st.warning("No data available for analytics.")
     else:
-        st.error("🚫 Failed to retrieve expenses.")
+        st.error("🚫 Failed to retrieve data for analytics.")
 
-# --- Footer spacing ---
-st.markdown("<br><br><br>", unsafe_allow_html=True)
-
+# Sticky footer CSS
 st.markdown("""
     <style>
         .reportview-container {
@@ -275,4 +298,6 @@ st.markdown("""
         Made with ❤️ by <strong>AJ</strong>
     </footer>
 """, unsafe_allow_html=True)
+
+
 
