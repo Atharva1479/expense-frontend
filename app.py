@@ -274,3 +274,11 @@ with tab3:
             st.warning("No data available for analytics.")
     else:
         st.error("🚫 Failed to retrieve data for analytics.")
+
+st.markdown("""
+    <hr style="margin-top: 2em;"/>
+    <div style="text-align: center; color: grey; font-size: 0.9em;">
+        Made with ❤️ by <strong>AJ</strong>
+    </div>
+""", unsafe_allow_html=True)
+
