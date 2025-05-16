@@ -11,6 +11,11 @@ API_URL = "https://expense-backend-m2y7.onrender.com/expenses"
 
 st.set_page_config(page_title="Expense Tracker", page_icon="💰", layout="wide")
 
+st.set_page_config(page_title="Expense Tracker", page_icon="💰", layout="wide")
+st.markdown("<h1 style='text-align: center; color: #4CAF50;'>💰 Track My Cash</h1>", unsafe_allow_html=True)
+st.markdown("---")  # Optional horizontal line separator
+
+
 # Predefined options
 CATEGORIES = ["Select a category", "Food", "Transport", "Entertainment", "Shopping", "Utilities", "Healthcare",
               "Education", "Others"]
