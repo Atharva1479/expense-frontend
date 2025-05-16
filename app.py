@@ -41,18 +41,27 @@ with tab1:
     if edit_data:
         st.subheader(f"📌 Existing Expenses on {selected_date.strftime('%d %B %Y')}")
         for i, exp in enumerate(edit_data, 1):
-            col1, col2 = st.columns([0.85, 0.15])
-            with col1:
-                st.markdown(f"**{i}. {exp['category']}** | ₹{exp['amount']} | {exp['payment_method']}  \n*{exp['description']}*")
-            with col2:
-                if st.button("✏️ Edit", key=f"edit_{exp['id']}"):
-                    st.session_state.editing = True
-                    st.session_state.edit_id = exp["id"]
-                    st.session_state.category = exp["category"]
-                    st.session_state.amount = exp["amount"]
-                    st.session_state.payment_method = exp["payment_method"]
-                    st.session_state.description = exp["description"]
+            col1, col2, col3 = st.columns([0.6, 0.2, 0.2])
+        with col1:
+            st.markdown(f"**{i}. {exp['category']}** | ₹{exp['amount']} | {exp['payment_method']}  \n*{exp['description']}*")
+        with col2:
+            if st.button("✏️ Edit", key=f"edit_{exp['id']}"):
+                st.session_state.editing = True
+                st.session_state.edit_id = exp["id"]
+                st.session_state.category = exp["category"]
+                st.session_state.amount = exp["amount"]
+                st.session_state.payment_method = exp["payment_method"]
+                st.session_state.description = exp["description"]
+                st.rerun()
+        with col3:
+            if st.button("🗑️ Delete", key=f"delete_{exp['id']}"):
+                delete_response = requests.delete(f"{API_URL}/{exp['id']}")
+                if delete_response.status_code == 200:
+                    st.success("🗑️ Expense deleted successfully!")
                     st.rerun()
+                else:
+                    st.error("❌ Failed to delete expense.")
+
     else:
         st.info("No expenses recorded for this date yet.")
 
