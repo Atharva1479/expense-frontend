@@ -201,7 +201,7 @@ with tab3:
                 yval = bar.get_height()
                 ax.text(
                     bar.get_x() + bar.get_width() / 2,
-                    yval + (0.02 * max(values)),  # dynamic spacing based on chart height
+                    yval + (0.03 * max(values)),  # dynamic spacing based on chart height
                     f"₹{yval:.0f}",
                     ha='center',
                     va='bottom',
