@@ -5,8 +5,11 @@ import matplotlib.pyplot as plt
 from datetime import date
 import numpy as np
 
-# Set page config first (required by Streamlit)
-st.set_page_config(page_title="Track my cash", page_icon="💰", layout="wide")
+# ✅ This MUST be the first Streamlit command
+st.set_page_config(page_title="Expense Tracker", page_icon="💰", layout="wide")
+
+# ✅ App Title after set_page_config
+st.markdown("<h1 style='text-align: center; color: #4CAF50;'>💰 Track My Cash</h1>", unsafe_allow_html=True)
 
 API_URL = "https://expense-backend-m2y7.onrender.com/expenses"
 
@@ -249,3 +252,27 @@ with tab3:
 
 # --- Footer spacing ---
 st.markdown("<br><br><br>", unsafe_allow_html=True)
+
+st.markdown("""
+    <style>
+        .reportview-container {
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        footer {
+            text-align: center;
+            color: grey;
+            padding: 20px 10px 10px;
+            font-size: 0.9em;
+            margin-top: auto;
+        }
+    </style>
+
+    <footer>
+        Made with ❤️ by <strong>AJ</strong>
+    </footer>
+""", unsafe_allow_html=True)
+
