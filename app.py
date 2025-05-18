@@ -250,32 +250,16 @@ with tab3:
                     st.markdown("#### 🏷️ Category-wise")
                     category_expenses = filtered_df.groupby('category')['amount'].sum().sort_values(ascending=False)
                     explode_cat = [0.1 if i < 2 else 0 for i in range(len(category_expenses))]
-                    fig1, ax1 = plt.subplots(figsize=(6, 6))
-                    wedges, texts, autotexts = ax1.pie(
-                    category_expenses,
-                    autopct='%1.1f%%',
-                    startangle=90,
-                    explode=explode_cat,
-                    pctdistance=0.85,
-                    textprops=dict(color="white", fontsize=10)
-                )
-                    
-
-                # Draw circle to make donut-style
-                centre_circle = plt.Circle((0, 0), 0.70, fc='white')
-                fig1.gca().add_artist(centre_circle)
-
-                # Add legend outside
-                ax1.legend(
-                    wedges, category_expenses.index,
-                    title="Categories",
-                    loc="center left",
-                    bbox_to_anchor=(1, 0.5),
-                    fontsize=10
-                )
-
-                ax1.axis('equal')  # Equal aspect ratio ensures pie is a circle
-                st.pyplot(fig1)
+                    fig1, ax1 = plt.subplots()
+                    ax1.pie(
+                        category_expenses,
+                        labels=category_expenses.index,
+                        autopct='%1.1f%%',
+                        startangle=90,
+                        explode=explode_cat
+                    )
+                    ax1.axis('equal')
+                    st.pyplot(fig1)
 
                 # 💳 Payment Method-wise Pie
                 with col2:
